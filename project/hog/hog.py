@@ -22,7 +22,18 @@ def roll_dice(num_rolls, dice=six_sided):
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN PROBLEM 1
-    "*** YOUR CODE HERE ***"
+    res = 0
+    pig_out = False
+    while num_rolls > 0:
+        num_dice = dice()
+        if num_dice == 1:
+            pig_out = True
+        res, num_rolls = res + num_dice, num_rolls - 1
+
+    if pig_out:
+        return 1
+    else:
+        return res
     # END PROBLEM 1
 
 
@@ -36,7 +47,8 @@ def free_bacon(score):
 
     # Trim pi to only (score + 1) digit(s)
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+    while score < GOAL_SCORE:
+        pi, score = pi // 10, score + 1
     # END PROBLEM 2
 
     return pi % 10 + 3
@@ -56,14 +68,17 @@ def take_turn(num_rolls, opponent_score, dice=six_sided):
     assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
     assert opponent_score < 100, 'The game should be over.'
     # BEGIN PROBLEM 3
-    "*** YOUR CODE HERE ***"
+    if num_rolls == 0:
+        return free_bacon(opponent_score)
+    else:
+        return roll_dice(num_rolls, dice)
     # END PROBLEM 3
 
 
 def extra_turn(player_score, opponent_score):
     """Return whether the player gets an extra turn."""
-    return (pig_pass(player_score, opponent_score) or
-            swine_align(player_score, opponent_score))
+    return (pig_pass(player_score, opponent_score)
+            or swine_align(player_score, opponent_score))
 
 
 def swine_align(player_score, opponent_score):
@@ -78,7 +93,14 @@ def swine_align(player_score, opponent_score):
     False
     """
     # BEGIN PROBLEM 4a
-    "*** YOUR CODE HERE ***"
+    gcd = 10
+    if player_score < 10 or opponent_score < 10:
+        return False
+    while gcd <= player_score or gcd <= opponent_score:
+        if player_score % gcd == 0 and opponent_score % gcd == 0:
+            return True
+        gcd = gcd + 1
+    return False
     # END PROBLEM 4a
 
 
@@ -100,7 +122,10 @@ def pig_pass(player_score, opponent_score):
     False
     """
     # BEGIN PROBLEM 4b
-    "*** YOUR CODE HERE ***"
+    if 0 < opponent_score - player_score < 3:
+        return True
+    else:
+        return False
     # END PROBLEM 4b
 
 
@@ -120,8 +145,13 @@ def silence(score0, score1):
     return silence
 
 
-def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
-         goal=GOAL_SCORE, say=silence):
+def play(strategy0,
+         strategy1,
+         score0=0,
+         score1=0,
+         dice=six_sided,
+         goal=GOAL_SCORE,
+         say=silence):
     """Simulate a game and return the final scores of both players, with Player
     0's score first, and Player 1's score second.
 
@@ -139,7 +169,20 @@ def play(strategy0, strategy1, score0=0, score1=0, dice=six_sided,
     """
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
+    while score0 < goal and score1 < goal:
+        another_turn = False
+        if who == 0:
+            num_rolls = strategy0(score0, score1)
+            score0 = score0 + take_turn(num_rolls, score1, dice)
+            if extra_turn(score0, score1):
+                another_turn = True
+        else:
+            num_rolls = strategy1(score1, score0)
+            score1 = score1 + take_turn(num_rolls, score0, dice)
+            if extra_turn(score1, score0):
+                another_turn = True
+        if not another_turn:
+            who = other(who)
     # END PROBLEM 5
     # (note that the indentation for the problem 6 prompt (***YOUR CODE HERE***) might be misleading)
     # BEGIN PROBLEM 6
@@ -172,6 +215,7 @@ def announce_lead_changes(last_leader=None):
     >>> f5 = f4(15, 13)
     Player 0 takes the lead by 2
     """
+
     def say(score0, score1):
         if score0 > score1:
             leader = 0
@@ -182,6 +226,7 @@ def announce_lead_changes(last_leader=None):
         if leader != None and leader != last_leader:
             print('Player', leader, 'takes the lead by', abs(score0 - score1))
         return announce_lead_changes(leader)
+
     return say
 
 
@@ -201,8 +246,10 @@ def both(f, g):
     Player 0 now has 10 and Player 1 now has 17
     Player 1 takes the lead by 7
     """
+
     def say(score0, score1):
         return both(f(score0, score1), g(score0, score1))
+
     return say
 
 
@@ -249,8 +296,10 @@ def always_roll(n):
     >>> strategy(99, 99)
     5
     """
+
     def strategy(score, opponent_score):
         return n
+
     return strategy
 
 
@@ -317,13 +366,12 @@ def run_experiments():
         print('bacon_strategy win rate:', average_win_rate(bacon_strategy))
 
     if False:  # Change to True to test extra_turn_strategy
-        print('extra_turn_strategy win rate:', average_win_rate(extra_turn_strategy))
+        print('extra_turn_strategy win rate:',
+              average_win_rate(extra_turn_strategy))
 
     if False:  # Change to True to test final_strategy
         print('final_strategy win rate:', average_win_rate(final_strategy))
-
     "*** You may add additional experiments as you wish ***"
-
 
 
 def bacon_strategy(score, opponent_score, cutoff=8, num_rolls=6):
@@ -354,6 +402,7 @@ def final_strategy(score, opponent_score):
     return 6  # Replace this statement
     # END PROBLEM 12
 
+
 ##########################
 # Command Line Interface #
 ##########################
@@ -367,7 +416,9 @@ def run(*args):
     """Read in the command-line argument and calls corresponding functions."""
     import argparse
     parser = argparse.ArgumentParser(description="Play Hog")
-    parser.add_argument('--run_experiments', '-r', action='store_true',
+    parser.add_argument('--run_experiments',
+                        '-r',
+                        action='store_true',
                         help='Runs strategy experiments')
 
     args = parser.parse_args()
