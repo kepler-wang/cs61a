@@ -1,4 +1,3 @@
-
 def lambda_curry2(func):
     """
     Returns a Curried version of a two-argument function FUNC.
@@ -15,8 +14,7 @@ def lambda_curry2(func):
     3
     """
     "*** YOUR CODE HERE ***"
-    return ______
-
+    return lambda x: lambda y: func(x, y)
 
 
 def count_cond(condition):
@@ -46,8 +44,16 @@ def count_cond(condition):
     >>> count_primes(20)   # 2, 3, 5, 7, 11, 13, 17, 19
     8
     """
-    "*** YOUR CODE HERE ***"
 
+    def cnt(n):
+        i, count = 1, 0
+        while i <= n:
+            if condition(n,i):
+                count += 1
+            i += 1
+        return count
+
+    return cnt
 
 
 def compose1(f, g):
@@ -67,6 +73,7 @@ def compose1(f, g):
     """
     return lambda x: f(g(x))
 
+
 def composite_identity(f, g):
     """
     Return a function with one parameter x that returns True if f(g(x)) is
@@ -82,7 +89,6 @@ def composite_identity(f, g):
     False
     """
     "*** YOUR CODE HERE ***"
-
 
 
 def cycle(f1, f2, f3):
@@ -112,4 +118,3 @@ def cycle(f1, f2, f3):
     19
     """
     "*** YOUR CODE HERE ***"
-
