@@ -48,7 +48,7 @@ def count_cond(condition):
     def cnt(n):
         i, count = 1, 0
         while i <= n:
-            if condition(n,i):
+            if condition(n, i):
                 count += 1
             i += 1
         return count
@@ -88,7 +88,7 @@ def composite_identity(f, g):
     >>> b1(4)                            # (4 + 1)^2 != 4^2 + 1
     False
     """
-    "*** YOUR CODE HERE ***"
+    return lambda x: f(g(x)) == g(f(x))
 
 
 def cycle(f1, f2, f3):
@@ -117,4 +117,50 @@ def cycle(f1, f2, f3):
     >>> do_two_cycles(1)
     19
     """
-    "*** YOUR CODE HERE ***"
+
+    def choose(n):
+
+        def final(x):
+            case = n
+            while case >= 0:
+                if case == 0:
+                    return x
+                elif case == 1:
+                    return f1(x)
+                elif case == 2:
+                    return f2(f1(x))
+                elif case == 3:
+                    return f3(f2(f1(x)))
+                else:
+                    x = f3(f2(f1(x)))
+                    case -= 3
+
+        return final
+
+    return choose
+    """Official solutions
+    
+    def ret_fn(n):
+        def ret(x):
+            i = 0
+            while i < n:
+                if i % 3 == 0:
+                    x = f1(x)
+                elif i % 3 == 1:
+                    x = f2(x)
+                else:
+                    x = f3(x)
+                i += 1
+            return x
+        return ret
+    return ret_fn
+
+    # Alternative solution
+    def ret_fn(n):
+        def ret(x):
+            if n == 0:
+                return x
+            return cycle(f2, f3, f1)(n - 1)(f1(x))
+        return ret
+    return ret_fn
+    """
